@@ -3,31 +3,47 @@
 {% block body %}
     <div style="clear: both;"></div>
     <div class="flex w-full h-screen">
+        <form class="form-filter min-w-full" action="/vehicle" method="get">
         <div class="flex flex-row w-full py-[100px] px-[140px]">
             <div class="basis-1/4 max-w-[260px] mr-[52px]">
                 <div class="flex flex-col">
-                    <div class="font-medium text-[#042A38] text-[22px] leading-[28px] uppercase">FILTRER MA RECHERCHE</div>
-                    <div class="switch-block flex h-[50px] rounded-[5px] bg-[#18495C] pl-[20px] pr-[14px] pt-[10px] pb-[9px]">
+                    <div class="font-medium mb-[30px] text-[#042A38] text-[22px] leading-[28px] uppercase">FILTRER MA RECHERCHE</div>
+                    <div class="flex mb-[15px] h-[50px] rounded-[5px] bg-[#18495C] pl-[20px] pr-[14px] pt-[10px] pb-[9px]">
                         <div class="grow text-[#FFFFFF] text-[15px] leading-[31px]">Prêt à partir</div>
                         <label class="switch">
                             <input type="checkbox" checked>
                             <span class="slider round"></span>
                         </label>
                     </div>
-                    <div>
+                    <div class="flex mb-[15px] h-[50px] rounded-[5px] bg-[#18495C] pl-[20px] pr-[14px] pt-[10px] pb-[9px]">
+                        <div class="grow text-[#FFFFFF] text-[15px] leading-[31px]">Zéro km</div>
+                        <label class="switch">
+                            <input type="checkbox" checked>
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <div class="flex mb-[15px] h-[50px] rounded-[5px] bg-[#18495C] pl-[20px] pr-[14px] pt-[10px] pb-[9px]">
+                        <div class="grow text-[#FFFFFF] text-[15px] leading-[31px]">Promotions</div>
+                        <label class="switch">
+                            <input type="checkbox">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <div class="mb-[15px] mt-[15px]">
                         <div class="text-[18px] leading-[21px] text-[#042A38] mb-[18px] text-medium">Budget</div>
                         <div class="cat action flex flex-row">
                             <label class="basis-1/2">
-                                <input type="radio" name="budget" value="Total" checked>
+                                <input class="changeFilter" type="radio" name="budget" value="Price" {{ app.request.get('budget') == 'Monthly' ?: 'checked' }}>
                                 <span>Total</span>
                             </label>
                             <label class="basis-1/2">
-                                <input type="radio" name="budget" value="Mensuel">
+                                <input class="changeFilter" type="radio" name="budget" value="Monthly" {{ app.request.get('budget') == 'Monthly' ? 'checked' }}>
                                 <span>Mensuel</span>
                             </label>
                         </div>
+                        </div>
                         <div class="pt-[8px] pb-[30px]">
-                            <div class="row">
+                            <div class="row changeFilter cursor-pointer">
                                 <div class="col-sm-12">
                                     <div id="slider-range"></div>
                                 </div>
@@ -35,8 +51,8 @@
                             <div class="row">
                                 <div class="col-sm-12">
                                     <form>
-                                        <input type="hidden" name="min-value" value="">
-                                        <input type="hidden" name="max-value" value="">
+                                        <input type="hidden" class="price_min" min="{{ filters['price_min'] }}" name="price-min" value="{{ app.request.get('price-min') ?: filters['price_min'] }}">
+                                        <input type="hidden" class="price_max" max="{{ filters['price_max'] }}" name="price-max" value="{{ app.request.get('price-max') ?: filters['price_max'] }}">
                                     </form>
                                 </div>
                             </div>
@@ -44,79 +60,82 @@
                     </div>
                     <div class="w-full h-[1px] bg-[#E3E7E8] mt-[20px] mb-[22px]"></div>
                     <div>
-                        <div class="text-[18px] leading-[21px] text-[#042A38] mb-[18px] text-medium">Marque</div>
-                        <label class="b-contain">
-                            <input type="checkbox" checked>
-                            <span>Toutes</span>
-                            <div class="b-input"></div>
-                        </label>
-                        <label class="b-contain">
-                            <input type="checkbox">
-                            <span>Dacia</span>
-                            <div class="b-input"></div>
-                        </label>
-                        <label class="b-contain">
-                            <input type="checkbox" >
-                            <span>Nissan</span>
-                            <div class="b-input"></div>
-                        </label>
-                        <label class="b-contain">
-                            <input type="checkbox">
-                            <span>Renault</span>
-                            <div class="b-input"></div>
-                        </label>
+                        <div class="filter-header relative cursor-pointer text-[18px] leading-[21px] text-[#042A38] text-medium">Marque <i class="arrow up"></i></div>
+                        <div class="mt-[18px]">
+                            {% for brand in filters['brands'] %}
+                            <label class="b-contain">
+                                <input class="changeFilter"
+                                       type="checkbox"
+                                       name="brands[]"
+                                       value="{{ brand }}"
+                                        {% if brand in app.request.get('brands') %}
+                                        checked
+                                       {% endif %}>
+                                <span>{{ brand }}</span>
+                                <div class="b-input"></div>
+                            </label>
+                            {% endfor %}
+                        </div>
                     </div>
                     <div class="w-full h-[1px] bg-[#E3E7E8] mt-[20px] mb-[22px]"></div>
                     <div>
-                        <div class="text-[18px] leading-[21px] text-[#042A38] mb-[18px] text-medium">Type de véhicule</div>
-                        <label class="b-contain">
-                            <input type="radio" name="radio1" checked>
-                            <span>Tous</span>
-                            <div class="b-input"></div>
-                        </label>
-                        <label class="b-contain">
-                            <input type="radio" name="radio1">
-                            <span>Citadine</span>
-                            <div class="b-input"></div>
-                        </label>
-                        <label class="b-contain">
-                            <input type="radio" name="radio1">
-                            <span>Berline</span>
-                            <div class="b-input"></div>
-                        </label>
-                        <label class="b-contain">
-                            <input type="radio" name="radio1">
-                            <span>Break</span>
-                            <div class="b-input"></div>
-                        </label>
-                        <label class="b-contain">
-                            <input type="radio" name="radio1">
-                            <span>SUV / 4x4</span>
-                            <div class="b-input"></div>
-                        </label>
-                        <label class="b-contain">
-                            <input type="radio" name="radio1">
-                            <span>Monospace / Ludospace</span>
-                            <div class="b-input"></div>
-                        </label>
-                        <label class="b-contain">
-                            <input type="radio" name="radio1">
-                            <span>Coupé / Cabriolet</span>
-                            <div class="b-input"></div>
-                        </label>
+                        <div class="filter-header relative cursor-pointer text-[18px] leading-[21px] text-[#042A38] text-medium">Modèle <i class="arrow up"></i></div>
+                        <div class="mt-[18px]">
+                            {% for model in filters['models'] %}
+                                <label class="b-contain">
+                                    <input class="changeFilter"
+                                           type="checkbox"
+                                           name="models[]"
+                                           value="{{ model }}"
+                                            {% if model in app.request.get('models') %}
+                                                checked
+                                            {% endif %}>
+                                    <span>{{ model }}</span>
+                                    <div class="b-input"></div>
+                                </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="w-full h-[1px] bg-[#E3E7E8] mt-[20px] mb-[22px]"></div>
+                    <div>
+                        <div class="filter-header relative cursor-pointer text-[18px] leading-[21px] text-[#042A38] text-medium">Motorisation <i class="arrow {% if app.request.get('energy')|length <= 0 %} down {% else %} up {% endif %}"></i></div>
+                        <div class="mt-[18px]" {% if app.request.get('energy')|length <= 0 %} style="display: none" {% endif %}>
+                            {% for energy in filters['energy'] %}
+                                <label class="b-contain">
+                                    <input class="changeFilter"
+                                           type="checkbox"
+                                           name="energy[]"
+                                           value="{{ energy }}"
+                                            {% if energy in app.request.get('energy') %}
+                                    checked
+                                            {% endif %}>
+                                    <span>{{ energy }}</span>
+                                    <div class="b-input"></div>
+                                </label>
+                            {% endfor %}
+                        </div>
                     </div>
                 </div>
-            </div>
             <div class="basis-3/4 ml-[52px]">
                 <div class="flex mt-[10px]">
-                    <div class="grow text-[#042A38] text-[16px] leading-[24px]"><span class="font-semibold">1356 résultats</span> correspondant à votre recherche</div>
-                    <div>Trier par</div>
+                    <div class="grow text-[#042A38] text-[16px] leading-[24px]"><span class="font-semibold">{{ vehicles['totalItems'] }} résultats</span> correspondant à votre recherche</div>
+                    <div class="flex flex-row">
+                        <div class="mr-[12px] leading-[34px]">Trier par</div>
+                        <select name="order" class="select changeFilter">
+                            <option disabled selected value> Trier par </option>
+                            <option value="brand-DESC" {{ app.request.get('order') == 'brand-DESC' ? 'selected' }}>Marque: décroissants</option>
+                            <option value="brand-ASC" {{ app.request.get('order') == 'brand-ASC' ? 'selected' }}>Marque: croissants</option>
+                            <option value="model-DESC" {{ app.request.get('order') == 'model-DESC' ? 'selected' }}>Modèle: décroissants</option>
+                            <option value="model-ASC" {{ app.request.get('order') == 'model-ASC' ? 'selected' }}>Modèle: croissants</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="grid grid-cols-3 gap-[40px] mt-[41px]">
-                    {% for vehicle in vehicles %}
+                <div class="grid grow grid-cols-3 gap-[40px] mt-[41px]">
+                    {% set i = 1 %}
+                    {% for vehicle in vehicles['items'] %}
                         <div>
                             <div class="border-t border-x border-[#E3E7E8] rounded-t-[10px]"
-                                 style="{% if vehicle.pics is not empty %} background-image: url({{ vehicle.pics[0] }}); {% endif %} background-size: cover; height: 245px;"></div>
+                                 style="background-image: {% if vehicle.pics is not empty %} url({{ vehicle.pics[0] }}) {% else %} url({{ asset('build/images/no-car.jpg') }}) {% endif %};background-size: cover; background-position: center; height: 245px;"></div>
                             <div class="flex flex-row px-[35px] pt-[30px] pb-[34px] rounded-b-[10px]" style="background: #F1F8F9">
                                 <div class="flex flex-col grow">
                                     <div class="font-semibold text-[#70B4C3] text-[15px] leading-[22px] uppercase tracking-[-0.45px]">{{ vehicle.brand }}</div>
@@ -125,7 +144,7 @@
                                     <div class="font-normal text-[#042A38] text-[12px] leading-[24px] tracking-[-0.24px]">{{ vehicle.year }} - {{ vehicle.energy }} - {{ vehicle.power }} ch</div>
                                 </div>
                                 <div class="flex flex-col text-right">
-                                    <div class="font-bold text-[#042A38] text-[22px] leading-[22px] tracking-[-0.44px   ]">{{ vehicle.price }} €</div>
+                                    <div class="font-bold text-[#042A38] text-[22px] leading-[22px] tracking-[-0.44px]">{{ vehicle.price }} €</div>
                                     {% if vehicle.priceRetail %}
                                     <div class="flex flex-row h-[18px] flex-row-reverse">
                                         <div class="font-bold bg-[#F4AB22] text-[#042A38] text-[11px] leading-[18px] ml-[5px] px-[5px]">-{{ (((vehicle.priceRetail - vehicle.price) / vehicle.priceRetail) * 100)|round }}%</div>
@@ -142,14 +161,45 @@
                                 </div>
                             </div>
                         </div>
+                        {% set i = i + 1 %}
+                        {% if i == 5 %}
+                            {% set i = 1 %}
+                            <div class="rounded-[10px]" style="background-image: url(https://user-images.githubusercontent.com/34513693/160633732-4b9dbc32-656b-473d-86a5-4f0b26bae908.png); background-size: 120% 110%; background-position: center;width: 100%;height: 419px;"></div>
+                        {% endif %}
                      {% endfor %}
+                </div>
+                <div class="mt-[30px]">
+                    <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                        {% for page in range(1, vehicles['pageCount']) %}
+                        <label class="b-contain changeFilter">
+                            <input type="radio" name="page" value="{{ page }}" {{ app.request.get('page') == page ? 'checked' }}>
+                            <span>{{ page }}</span>
+                        </label>
+                        {% endfor %}
+                    </nav>
                 </div>
             </div>
         </div>
+        </form>
     </div>
     <script>
         // Requires jQuery
+        $(document).ready(function() {
+            $('.changeFilter').on('change', function() {
+                $('.form-filter').submit();
+            });
 
+            $('.filter-header').on('click', function() {
+                $(this).next().toggle();
+                if($(this).next().css('display') === 'none'){
+                    $(this).children().addClass('down');
+                    $(this).children().removeClass('up');
+                } else {
+                    $(this).children().addClass('up');
+                    $(this).children().removeClass('down');
+                }
+            });
+        }());
         // Initialize slider:
         $(document).ready(function() {
             $('.noUi-handle').on('click', function() {
@@ -162,11 +212,11 @@
                 prefix: ' €'
             });
             noUiSlider.create(rangeSlider, {
-                start: [100, 3200],
+                start: [parseInt($('.price_min').attr('value')), parseInt($('.price_max').attr('value'))],
                 step: 1,
                 range: {
-                    'min': [100],
-                    'max': [5000]
+                    'min': [parseInt($('.price_min').attr('min'))],
+                    'max': [parseInt($('.price_max').attr('max'))]
                 },
                 format: moneyFormat,
                 connect: true
@@ -178,10 +228,12 @@
                 // document.getElementsByClassName('slider-range-value2').innerHTML = ;
                 $('.slider-range-value1').html(values[0])
                 $('.slider-range-value2').html(values[1])
-                document.getElementsByName('min-value').value = moneyFormat.from(
-                    values[0]);
-                document.getElementsByName('max-value').value = moneyFormat.from(
-                    values[1]);
+                $('.price_min').attr('value', moneyFormat.from(values[0]));
+                $('.price_max').attr('value', moneyFormat.from(values[1]));
+                // console.log(document.getElementsByName('price-max').value)
+                // document.getElementsByName('price-min').value = ;
+                // document.getElementsByName('price-max').value = moneyFormat.from(
+                //     values[1]);
             });
         });
 
@@ -1408,6 +1460,7 @@
                     if (data.handleNumber !== undefined) {
                         fireEvent('end', data.handleNumber);
                     }
+                    $('.form-filter').submit();
                 }
                 // Fire 'end' when a mouse or pen leaves the document.
 
