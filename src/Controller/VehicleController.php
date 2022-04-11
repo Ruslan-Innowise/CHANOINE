@@ -42,7 +42,8 @@ class VehicleController extends AbstractController
                 $params,
                 [$orderBy[0] ?? 'id' => $orderBy[1] ?? 'asc']);
 
-
+        //TODO Refactoring (Add Service)
+        //TODO Edit Get params filter
         $vehiclesFilters =  $this->getDoctrine()
             ->getRepository(Vehicles::class)
             ->findAll();
@@ -59,6 +60,8 @@ class VehicleController extends AbstractController
             }
             $filters['price_min'] = $filters['price_min'] === null ? $vehicle->getPrice() : min($filters['price_min'], $vehicle->getPrice());
             $filters['price_max'] = max($filters['price_max'], $vehicle->getPrice());
+//            $filters['price_monthly_min'] = $filters['price_monthly_min'] === null ? $vehicle->getPriceMonthly() : min($filters['price_monthly_min'], $vehicle->getPriceMonthly());
+//            $filters['price_monthly_max'] = max($filters['price_monthly_max'], $vehicle->getPriceMonthly());
         }
 
         return $this->render('app/index.html.twig',
