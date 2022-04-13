@@ -14,6 +14,6 @@ class DefaultController extends AbstractController
      */
     public function appDefaultAction(): Response
     {
-        return $this->render('app/index.html.twig', []);
+        return $this->redirectToRoute('vehicle');
     }
 }
